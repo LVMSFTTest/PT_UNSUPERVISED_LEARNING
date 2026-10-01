@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsupervised Learning & Clustering — 3-Hour Session</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#12081f;--card:#1c1030;--alt:#251740;--code:#0d0619;
+    --accent:#c084fc;--glow:rgba(192,132,252,.14);
+    --teal:#2dd4bf;--purple:#a78bfa;--gold:#facc15;--coral:#fb7185;
+    --green:#34d399;--orange:#fb923c;--sky:#7dd3fc;
+    --text:#ede7f6;--muted:#9c8dbb;--dim:#5c4d80;--border:#2c1c4a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+
+  .top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(18,8,31,.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);}
+  .nav-title{padding:10px 20px 0;font-family:'Playfair Display',serif;font-size:14.5px;font-weight:800;color:var(--accent);letter-spacing:.4px;}
+  .nav-tabs{display:flex;overflow-x:auto;padding:6px 12px;gap:3px;scrollbar-width:none;}
+  .nav-tabs::-webkit-scrollbar{display:none;}
+  .nav-tab{flex-shrink:0;padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .3s;border:1px solid transparent;white-space:nowrap;}
+  .nav-tab:hover{color:var(--text);background:var(--card);}
+  .nav-tab.active{color:var(--accent);background:var(--glow);border-color:rgba(192,132,252,.4);}
+
+  .pages-wrap{margin-top:82px;height:calc(100vh - 82px);overflow:hidden;position:relative;}
+  .page{display:none;height:100%;overflow-y:auto;padding:28px 20px 60px;scroll-behavior:smooth;}
+  .page.active{display:block;}
+  .pg{max-width:840px;margin:0 auto;}
+
+  h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:800;margin-bottom:5px;line-height:1.2;}
+  h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:700;margin:32px 0 12px;color:var(--accent);}
+  h3{font-size:16.5px;font-weight:700;margin:20px 0 8px;color:var(--teal);}
+  p,li{font-size:14.5px;line-height:1.75;margin-bottom:8px;}
+  .sub{font-size:15.5px;color:var(--muted);margin-bottom:26px;line-height:1.6;}
+
+  .cd{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 0;transition:border-color .3s;}
+  .cd:hover{border-color:rgba(192,132,252,.3);}
+  .cd.hl{border-left:4px solid var(--accent);}
+  .cd.warn{border-left:4px solid var(--gold);}
+  .cd.err{border-left:4px solid var(--coral);}
+  .cd.info{border-left:4px solid var(--sky);}
+  .cd.ok{border-left:4px solid var(--green);}
+  .cd.purp{border-left:4px solid var(--purple);}
+  .tg{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;padding:3px 8px;border-radius:5px;margin-bottom:9px;}
+  .tg.bl{background:rgba(192,132,252,.17);color:var(--accent);}
+  .tg.yl{background:rgba(250,204,21,.13);color:var(--gold);}
+  .tg.rd{background:rgba(251,113,133,.13);color:var(--coral);}
+  .tg.gn{background:rgba(52,211,153,.13);color:var(--green);}
+  .tg.sk{background:rgba(125,211,252,.15);color:var(--sky);}
+  .tg.pp{background:rgba(167,139,250,.15);color:var(--purple);}
+  .tg.or{background:rgba(251,146,60,.13);color:var(--orange);}
+
+  .fm{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin:12px 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--accent);letter-spacing:.4px;}
+
+  .co{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:15px 16px;margin:12px 0;overflow-x:auto;position:relative;}
+  .co code{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:var(--text);white-space:pre;}
+  .cl{position:absolute;top:6px;right:10px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+  .kw{color:#c792ea;}.fn{color:#82aaff;}.str{color:#c3e88d;}.cm{color:#7a6a9c;}.num{color:#f78c6c;}.op{color:#89ddff;}
+
+  .ex{background:linear-gradient(135deg,rgba(192,132,252,.08),rgba(45,212,191,.03));border:1px solid rgba(192,132,252,.2);border-radius:14px;padding:20px;margin:16px 0;}
+  .ex .et{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:11px;}
+
+  .biz{background:linear-gradient(135deg,rgba(52,211,153,.07),rgba(125,211,252,.05));border:1px solid rgba(52,211,153,.22);border-radius:14px;padding:20px;margin:16px 0;}
+  .biz .et{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:var(--green);margin-bottom:11px;}
+
+  .tb{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+  .tb th{background:var(--alt);color:var(--accent);padding:8px 11px;text-align:left;font-weight:700;font-size:12px;letter-spacing:.4px;border-bottom:2px solid var(--border);}
+  .tb td{padding:8px 11px;border-bottom:1px solid var(--border);}
+  .tb tr:hover td{background:rgba(192,132,252,.05);}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:14px 0;}
+  .gc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .gc.pro{border-top:3px solid var(--green);}.gc.con{border-top:3px solid var(--coral);}
+  .gc h4{font-size:13px;font-weight:700;margin-bottom:7px;}
+  .gc.pro h4{color:var(--green);}.gc.con h4{color:var(--coral);}
+  .gc ul{padding-left:14px;}.gc li{font-size:12.5px;margin-bottom:4px;color:var(--muted);}
+
+  .bds{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+  .bd{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;flex:1;min-width:110px;text-align:center;}
+  .bd .v{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;color:var(--accent);}
+  .bd .l{font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+  .st{counter-reset:s;list-style:none;padding:0;}
+  .st li{counter-increment:s;padding:11px 11px 11px 50px;position:relative;margin-bottom:6px;border-radius:10px;background:var(--card);border:1px solid var(--border);}
+  .st li::before{content:counter(s);position:absolute;left:12px;top:11px;width:25px;height:25px;background:var(--glow);border:1px solid rgba(192,132,252,.4);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);}
+
+  .fl{display:flex;align-items:center;gap:6px;margin:16px 0;overflow-x:auto;padding:6px 0;}
+  .fb{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;text-align:center;font-size:12px;font-weight:600;flex-shrink:0;min-width:90px;}
+  .fa{color:var(--accent);font-size:16px;flex-shrink:0;}
+
+  .qz{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin:16px 0;}
+  .qz .qt{font-weight:600;margin-bottom:11px;font-size:14px;}
+  .qo{display:block;padding:9px 13px;margin:4px 0;border-radius:8px;border:1px solid var(--border);background:var(--alt);cursor:pointer;font-size:13px;color:var(--muted);transition:all .2s;}
+  .qo:hover{border-color:var(--accent);color:var(--text);}
+  .qo.ok{border-color:var(--green);background:rgba(52,211,153,.07);color:var(--green);}
+  .qo.no{border-color:var(--coral);background:rgba(251,113,133,.07);color:var(--coral);}
+  .qf{display:none;margin-top:9px;padding:9px 13px;border-radius:8px;font-size:12px;line-height:1.6;}
+  .qf.show{display:block;}.qf.r{background:rgba(52,211,153,.07);color:var(--green);}.qf.w{background:rgba(251,113,133,.07);color:var(--coral);}
+
+  .iq{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 17px;margin:11px 0;cursor:pointer;}
+  .iq .qh{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13.5px;color:var(--text);}
+  .iq .qh .car{color:var(--accent);transition:transform .25s;font-size:12px;}
+  .iq.open .qh .car{transform:rotate(180deg);}
+  .iq .ans{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);line-height:1.7;}
+  .iq.open .ans{display:block;}
+
+  .tip{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:12px;padding:14px 17px;margin:10px 0;}
+  .tip .tn{font-size:12.5px;font-weight:700;color:var(--teal);margin-bottom:4px;}
+
+  .prog{position:fixed;bottom:0;left:0;height:3px;background:var(--accent);transition:width .15s;z-index:100;}
+
+  @media(max-width:700px){
+    h1{font-size:24px;}h2{font-size:20px;}
+    .g2,.g3{grid-template-columns:1fr;}
+    .page{padding:20px 14px 56px;}
+    .nav-tab{font-size:10.5px;padding:5px 9px;}
+    .fl{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-title">🔮 Unsupervised Learning & Clustering — 3-Hour Session</div>
+  <div class="nav-tabs" id="navTabs"></div>
+</nav>
+
+<div class="pages-wrap">
+
+<!-- PAGE 0: AGENDA -->
+<div class="page" id="page-0">
+<div class="pg">
+  <h1>Session Agenda — Day 6</h1>
+  <p class="sub">Days 1-5 always had an answer key — a target column telling the model what "correct" looked like. Day 6 removes that entirely: no labels, no right answers, just raw data and the question "what natural groups live inside this?" Every topic follows: <strong>1) definition, 2) formula, 3) worked example, 4) visual</strong>.</p>
+
+  <h2>Today's Agenda</h2>
+  <table class="tb">
+    <tr><th>#</th><th>Topic</th><th>Approx. Time</th></tr>
+    <tr><td>1</td><td><strong>Introduction to Unsupervised Learning & Clustering</strong></td><td>20 min</td></tr>
+    <tr><td>2</td><td><strong>K-Means Clustering & Distance Metrics</strong></td><td>25 min</td></tr>
+    <tr><td>3</td><td><strong>The K-Means Algorithm — Step by Step</strong></td><td>20 min</td></tr>
+    <tr><td>4</td><td><strong>Choosing K — Elbow Method & Silhouette Score</strong></td><td>25 min</td></tr>
+    <tr><td>5</td><td><strong>Introduction to Hierarchical Clustering</strong></td><td>15 min</td></tr>
+    <tr><td>6</td><td><strong>Agglomerative Clustering, Linkage & Dendrograms</strong></td><td>25 min</td></tr>
+    <tr><td>7</td><td><strong>Hands-On: Customer Segmentation</strong></td><td>25 min</td></tr>
+    <tr><td>8</td><td><strong>Hands-On: Bank Transactions</strong></td><td>20 min</td></tr>
+    <tr><td>9</td><td><strong>Pro Tips</strong></td><td>10 min</td></tr>
+    <tr><td>10</td><td><strong>Workshop</strong></td><td>self-paced</td></tr>
+    <tr><td>11</td><td><strong>Quiz</strong></td><td>10 min</td></tr>
+    <tr><td>12</td><td><strong>Interview Questions</strong></td><td>reference</td></tr>
+  </table>
+
+  <div class="cd hl">
+    <span class="tg bl">How Every Topic Is Structured</span>
+    <ol class="st">
+      <li><strong>Definition</strong> — plain language, what it is and why it matters</li>
+      <li><strong>Formula</strong> — the mechanics behind it</li>
+      <li><strong>Worked Example</strong> — real results from the two companion datasets</li>
+      <li><strong>Visual</strong> — a diagram so you can literally see the idea</li>
+    </ol>
+  </div>
+
+  <div class="ex">
+    <div class="et">🎓 Running Examples Used Throughout</div>
+    <p><strong>Customer Segmentation</strong> (10,695 customers — age, income proxies, family size, spending score) and <strong>Bank Transactions</strong> (20,000 real transactions — account balance, transaction amount) both drive today's worked examples, with genuinely real results computed in the companion notebooks — including one dataset that reveals a classic, very common clustering mistake.</p>
+  </div>
+
+  <div class="cd info">
+    <span class="tg sk">Companion Files</span>
+    <p>📓 <strong>Day6_Elbow_Silhouette_CustomerSegmentation.ipynb</strong> and 📓 <strong>Day6_KMeans_BankTransactions.ipynb</strong> — both Colab-ready, both fully executed with real results.</p>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">Trainer Note</span>
+    <p>The Bank Transactions notebook contains a dramatic real demonstration: clustering the RAW account balance and transaction amount produces one giant cluster of 18,555 customers and two tiny clusters of 10 and 113 — completely useless. A simple log-transform fixes it into three genuinely meaningful, balanced segments. Use this as the day's central "aha" moment about outlier sensitivity.</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 1: INTRO TO UNSUPERVISED LEARNING -->
+<div class="page" id="page-1">
+<div class="pg">
+  <h1>Introduction to Unsupervised Learning & Clustering</h1>
+  <p class="sub">What happens when nobody tells the algorithm what the "right answer" looks like.</p>
+
+  <h2>Definition</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>Unsupervised learning is used when the target variable is absent — the dataset isn't labeled.</strong> Its goal is finding hidden patterns within the data by grouping data points into homogeneous groups called clusters, without ever being told what the "correct" grouping is.</p>
+  </div>
+
+  <h2>Supervised vs Unsupervised — Side by Side</h2>
+  <table class="tb">
+    <tr><th></th><th>Supervised (Days 1-5)</th><th>Unsupervised (Today)</th></tr>
+    <tr><td>Data</td><td>Clearly defined X and Y variables</td><td>Unlabeled data — no Y at all</td></tr>
+    <tr><td>Goal</td><td>Predict a continuous response (regression) or category (classification)</td><td>Discover emerging patterns based on similarity</td></tr>
+    <tr><td>Example techniques</td><td>Linear/Logistic Regression, Decision Trees</td><td>Clustering, Association Rules (market basket analysis)</td></tr>
+    <tr><td>How "correct" is judged</td><td>Compare predictions to known labels</td><td>Much harder — no ground truth to compare against</td></tr>
+  </table>
+
+  <div class="cd warn">
+    <span class="tg yl">Why This Is Genuinely Harder</span>
+    <p>Unsupervised learning is much harder and more complex than supervised learning specifically because results are hard to define in the absence of a target variable — there's no "accuracy" to compute, no confusion matrix, no ground truth to check against. The other core challenge is defining the objective function itself: what does "good clustering" even mean, mathematically?</p>
+  </div>
+
+  <h2>Why Bother? — Real Roles of Clustering</h2>
+  <div class="g2">
+    <div class="gc pro">
+      <h4>Standalone Insight Tool</h4>
+      <ul><li>Understand data distribution before modeling</li><li>Visualization of clusters can unveil important structure</li></ul>
+    </div>
+    <div class="gc pro">
+      <h4>Preprocessing Step</h4>
+      <ul><li>Feed cluster labels into a downstream supervised model</li><li>Gain insight of data before applying a classification model</li></ul>
+    </div>
+  </div>
+
+  <h2>Example</h2>
+  <div class="ex">
+    <div class="et">🎓 Real Use Cases</div>
+    <p><strong>Customer segmentation</strong> (today's hands-on): group customers by behavior for targeted marketing. <strong>Anomaly detection</strong>: flag transactions that don't fit any normal cluster as potential fraud. <strong>Image compression</strong>: reduce millions of pixel colors down to K representative colors. <strong>Document clustering</strong>: automatically group similar articles or support tickets.</p>
+  </div>
+
+  <h2>The Core Goal of Any Clustering</h2>
+  <div class="fm">Maximize SSB (Between-cluster variation) &nbsp;&nbsp;|&nbsp;&nbsp; Minimize SSW (Within-cluster variation)</div>
+  <p>Group records so that points are <strong>similar to one another within the same cluster</strong> (homogeneity, low SSW) and <strong>dissimilar to objects in other clusters</strong> (heterogeneity, high SSB) — every clustering algorithm, however different its mechanics, is chasing this same basic goal.</p>
+
+  <h2>Visual — What Clustering Actually Does</h2>
+  <div class="ex">
+    <svg viewBox="0 0 500 180" style="width:100%;max-width:460px;height:auto;">
+      <text x="120" y="20" text-anchor="middle" font-size="11" style="fill:var(--coral);font-weight:700">Before Clustering</text>
+      <circle cx="60" cy="60" r="5" style="fill:var(--muted)"/><circle cx="90" cy="80" r="5" style="fill:var(--muted)"/>
+      <circle cx="140" cy="50" r="5" style="fill:var(--muted)"/><circle cx="70" cy="110" r="5" style="fill:var(--muted)"/>
+      <circle cx="160" cy="100" r="5" style="fill:var(--muted)"/><circle cx="110" cy="130" r="5" style="fill:var(--muted)"/>
+      <circle cx="180" cy="60" r="5" style="fill:var(--muted)"/><circle cx="50" cy="150" r="5" style="fill:var(--muted)"/>
+      <text x="120" y="170" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">just points, no structure visible</text>
+
+      <text x="380" y="20" text-anchor="middle" font-size="11" style="fill:var(--teal);font-weight:700">After Clustering</text>
+      <circle cx="320" cy="55" r="5" style="fill:var(--coral)"/><circle cx="340" cy="70" r="5" style="fill:var(--coral)"/><circle cx="330" cy="45" r="5" style="fill:var(--coral)"/>
+      <circle cx="400" cy="55" r="5" style="fill:var(--teal)"/><circle cx="420" cy="65" r="5" style="fill:var(--teal)"/><circle cx="410" cy="45" r="5" style="fill:var(--teal)"/>
+      <circle cx="360" cy="130" r="5" style="fill:var(--gold)"/><circle cx="380" cy="145" r="5" style="fill:var(--gold)"/>
+      <text x="380" y="170" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">3 natural groups revealed</text>
+    </svg>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 2: K-MEANS & DISTANCE METRICS -->
+<div class="page" id="page-2">
+<div class="pg">
+  <h1>K-Means Clustering & Distance Metrics</h1>
+  <p class="sub">The most popular clustering algorithm — and the different rulers it can use to measure "similar."</p>
+
+  <h2>Definition</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>K-Means is a partitioning clustering technique that groups data into K distinct, non-overlapping clusters</strong>, aiming to minimize the distance between data points within the same cluster and maximize the distance between different clusters. Developed by James MacQueen in 1967.</p>
+  </div>
+
+  <h2>Key Terminology</h2>
+  <table class="tb">
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td><strong>Cluster</strong></td><td>A collection of data points grouped together because of similarities between them</td></tr>
+    <tr><td><strong>Centroid</strong></td><td>A real or imaginary location representing the center of a cluster</td></tr>
+    <tr><td><strong>K</strong></td><td>The number of centroids (clusters) to find — chosen by you, not learned automatically</td></tr>
+    <tr><td><strong>Means</strong></td><td>The averaging of data used to find each cluster's centroid</td></tr>
+  </table>
+
+  <h2>Distance Metrics — How "Similar" Gets Measured</h2>
+  <div class="fm">Euclidean: √[(x₁−y₁)² + (x₂−y₂)² + ...]</div>
+  <div class="fm">Manhattan: |x₁−y₁| + |x₂−y₂| + ...</div>
+  <table class="tb">
+    <tr><th>Metric</th><th>Intuition</th><th>Best For</th></tr>
+    <tr><td><strong>Euclidean</strong></td><td>Straight-line ("as the crow flies") distance</td><td>The default — most common choice, used by K-Means by default</td></tr>
+    <tr><td><strong>Manhattan</strong></td><td>City-block distance — sum of grid-aligned steps</td><td>Grid-like data, high-dimensional data (more robust to outliers)</td></tr>
+    <tr><td><strong>Chebyshev</strong></td><td>Maximum single-coordinate difference ("chessboard" distance)</td><td>When the worst single dimension matters most</td></tr>
+    <tr><td><strong>Minkowski</strong></td><td>A generalized formula — Manhattan and Euclidean are special cases</td><td>When you want to tune between Manhattan (p=1) and Euclidean (p=2)</td></tr>
+    <tr><td><strong>Mahalanobis</strong></td><td>Accounts for correlation between features via the covariance matrix</td><td>Multivariate data where features are correlated</td></tr>
+  </table>
+
+  <div class="cd info">
+    <span class="tg sk">Minkowski — The Generalized Formula</span>
+    <div class="fm" style="margin:8px 0;">D = ( Σ|xᵢ−yᵢ|ᵖ )^(1/p)</div>
+    <p>When p=1, Minkowski becomes Manhattan distance. When p=2, it becomes Euclidean distance. When p=∞, it becomes Chebyshev distance. One formula, three familiar special cases.</p>
+    <p><strong>Same P and Q, plugged into the same formula, just changing p:</strong> using Δage=15, Δspend=30 from before:</p>
+    <table class="tb">
+      <tr><th>p</th><th>Calculation</th><th>Result</th><th>Same as...</th></tr>
+      <tr><td>1</td><td>(15¹+30¹)^(1/1)</td><td>45</td><td>Manhattan</td></tr>
+      <tr><td>2</td><td>(15²+30²)^(1/2)</td><td>33.5</td><td>Euclidean</td></tr>
+      <tr><td>4</td><td>(15⁴+30⁴)^(1/4)</td><td>31.2</td><td>— getting closer to Chebyshev</td></tr>
+      <tr><td>∞</td><td>max(15, 30)</td><td>30</td><td>Chebyshev</td></tr>
+    </table>
+    <p>As p climbs, the result glides smoothly from 45 down toward 30 — Minkowski isn't a fourth, separate distance to memorize, it's the dial that lets you SLIDE between the other three.</p>
+  </div>
+
+  <div class="ex">
+    <div class="et">🎓 Visual — The Unit Circle Changes Shape as p Changes</div>
+    <svg viewBox="0 0 620 200" style="width:100%;height:auto;">
+      <text x="100" y="20" text-anchor="middle" font-size="11" style="fill:var(--gold);font-weight:700">p=1 (Manhattan)</text>
+      <line x1="30" y1="110" x2="170" y2="110" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="100" y1="180" x2="100" y2="40" style="stroke:var(--dim);stroke-width:1"/>
+      <polygon points="100,50 150,110 100,170 50,110" fill="none" style="stroke:var(--gold);stroke-width:2.5"/>
+      <text x="100" y="195" text-anchor="middle" font-size="9" style="fill:var(--muted)">a diamond</text>
+
+      <text x="310" y="20" text-anchor="middle" font-size="11" style="fill:var(--accent);font-weight:700">p=2 (Euclidean)</text>
+      <line x1="240" y1="110" x2="380" y2="110" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="310" y1="180" x2="310" y2="40" style="stroke:var(--dim);stroke-width:1"/>
+      <circle cx="310" cy="110" r="60" fill="none" style="stroke:var(--accent);stroke-width:2.5"/>
+      <text x="310" y="195" text-anchor="middle" font-size="9" style="fill:var(--muted)">a perfect circle</text>
+
+      <text x="520" y="20" text-anchor="middle" font-size="11" style="fill:var(--purple);font-weight:700">p=∞ (Chebyshev)</text>
+      <line x1="450" y1="110" x2="590" y2="110" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="520" y1="180" x2="520" y2="40" style="stroke:var(--dim);stroke-width:1"/>
+      <rect x="460" y="50" width="120" height="120" fill="none" style="stroke:var(--purple);stroke-width:2.5"/>
+      <text x="520" y="195" text-anchor="middle" font-size="9" style="fill:var(--muted)">a square</text>
+    </svg>
+    <p>Every point drawn on each shape's outline is considered "equally far" from the center. As p grows from 1 to 2 to ∞, that outline smoothly inflates from a diamond, to a circle, to a square — a visual way to see the same "sliding dial" the table above shows numerically.</p>
+  </div>
+
+  <div class="cd purp">
+    <span class="tg pp">Mahalanobis — Distance That Understands Correlation</span>
+    <p><strong>The problem Mahalanobis solves:</strong> every metric so far treats each feature as independent — but real features are often correlated (taller people tend to weigh more; higher income tends to come with higher spending). Euclidean distance draws perfect CIRCLES around a point, treating every direction as equally likely. If your data actually forms a diagonal, elliptical cloud, those circles are simply the wrong shape for measuring "how unusual is this point."</p>
+    <div class="fm">D = √[ (x−μ)ᵀ S⁻¹ (x−μ) ]</div>
+    <p style="font-size:13px;color:var(--muted);">where μ is the distribution's mean, and S⁻¹ is the inverse of the covariance matrix — this is the piece that "corrects" distance for how features move together.</p>
+  </div>
+
+  <div class="ex">
+    <div class="et">🎓 Visual — Why a Circle Is the Wrong Shape for Correlated Data</div>
+    <svg viewBox="0 0 500 200" style="width:100%;max-width:460px;height:auto;">
+      <ellipse cx="220" cy="110" rx="140" ry="55" transform="rotate(-30 220 110)" fill="rgba(167,139,250,.15)" style="stroke:var(--purple);stroke-width:1.5"/>
+      <circle cx="90" cy="70" r="4" style="fill:var(--muted)"/><circle cx="120" cy="90" r="4" style="fill:var(--muted)"/>
+      <circle cx="160" cy="100" r="4" style="fill:var(--muted)"/><circle cx="200" cy="120" r="4" style="fill:var(--muted)"/>
+      <circle cx="240" cy="130" r="4" style="fill:var(--muted)"/><circle cx="280" cy="145" r="4" style="fill:var(--muted)"/>
+      <circle cx="320" cy="155" r="4" style="fill:var(--muted)"/><circle cx="350" cy="160" r="4" style="fill:var(--muted)"/>
+      <circle cx="220" cy="115" r="5" style="fill:var(--teal)"/>
+      <text x="220" y="100" text-anchor="middle" font-size="9" style="fill:var(--teal);font-weight:700">center</text>
+      <circle cx="255" cy="60" r="5" style="fill:var(--coral)"/>
+      <text x="270" y="50" font-size="9.5" style="fill:var(--coral);font-weight:700">A</text>
+      <circle cx="320" cy="120" r="5" style="fill:var(--gold)"/>
+      <text x="335" y="115" font-size="9.5" style="fill:var(--gold);font-weight:700">B</text>
+      <circle cx="130" cy="140" r="80" fill="none" stroke-dasharray="3,3" style="stroke:var(--dim);stroke-width:1"/>
+      <text x="130" y="230" text-anchor="middle" font-size="9" style="fill:var(--muted)">dashed = a Euclidean circle at one fixed radius</text>
+    </svg>
+    <p>Points A and B might sit at the EXACT SAME Euclidean distance from the center (same dashed-circle radius). But B lies right along the natural diagonal "trend" of the data (unremarkable — plenty of real points sit near there), while A sits far off that trend, in a direction the data almost never goes. Mahalanobis distance would correctly flag A as far more unusual than B — exactly the kind of judgment a plain circle-based distance can't make, and exactly why Mahalanobis is popular for multivariate outlier/anomaly detection.</p>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">No Single "Correct" Distance Measure</span>
+    <p>Euclidean is the most widely used, but all distance measures have their own purpose — one cannot claim only one is always accurate. The right choice depends on your data's structure and what "similar" should actually mean for your problem.</p>
+  </div>
+
+  <h2>Example</h2>
+  <div class="ex">
+    <div class="et">🎓 Worked Example — Same Two Points, Three Different Answers</div>
+    <p>Two customers: P(Age=30, Spending=50) and Q(Age=45, Spending=20). Δage = 15, Δspending = 30.</p>
+    <p><strong>Euclidean</strong> = √[15² + 30²] = √[225 + 900] = √1125 ≈ <strong>33.5</strong></p>
+    <p><strong>Manhattan</strong> = |15| + |30| = <strong>45</strong></p>
+    <p><strong>Chebyshev</strong> = max(15, 30) = <strong>30</strong></p>
+    <p>Same two points, three genuinely different numbers — which is exactly why the choice of metric matters.</p>
+  </div>
+
+  <h2>Visual — How Each Metric Actually "Travels" Between Two Points</h2>
+  <div class="ex">
+    <svg viewBox="0 0 620 240" style="width:100%;height:auto;">
+      <!-- Euclidean panel -->
+      <text x="100" y="20" text-anchor="middle" font-size="11.5" style="fill:var(--accent);font-weight:700">Euclidean</text>
+      <line x1="30" y1="190" x2="180" y2="190" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="30" y1="190" x2="30" y2="50" style="stroke:var(--dim);stroke-width:1"/>
+      <circle cx="50" cy="170" r="4.5" style="fill:var(--teal)"/>
+      <text x="40" y="205" font-size="10" style="fill:var(--teal)">P</text>
+      <circle cx="150" cy="70" r="4.5" style="fill:var(--coral)"/>
+      <text x="158" y="65" font-size="10" style="fill:var(--coral)">Q</text>
+      <line x1="50" y1="170" x2="150" y2="70" style="stroke:var(--accent);stroke-width:2.5"/>
+      <text x="130" y="150" font-size="9.5" style="fill:var(--accent);font-weight:700">≈33.5</text>
+      <text x="100" y="225" text-anchor="middle" font-size="9" style="fill:var(--muted)">one straight diagonal line</text>
+
+      <!-- Manhattan panel -->
+      <text x="310" y="20" text-anchor="middle" font-size="11.5" style="fill:var(--gold);font-weight:700">Manhattan</text>
+      <line x1="240" y1="190" x2="390" y2="190" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="240" y1="190" x2="240" y2="50" style="stroke:var(--dim);stroke-width:1"/>
+      <circle cx="260" cy="170" r="4.5" style="fill:var(--teal)"/>
+      <text x="250" y="205" font-size="10" style="fill:var(--teal)">P</text>
+      <circle cx="360" cy="70" r="4.5" style="fill:var(--coral)"/>
+      <text x="368" y="65" font-size="10" style="fill:var(--coral)">Q</text>
+      <path d="M260,170 L360,170 L360,70" fill="none" style="stroke:var(--gold);stroke-width:2.5"/>
+      <text x="310" y="184" font-size="9" style="fill:var(--gold);font-weight:700">|Δage|=15</text>
+      <text x="368" y="125" font-size="9" style="fill:var(--gold);font-weight:700">|Δspend|=30</text>
+      <text x="310" y="225" text-anchor="middle" font-size="9" style="fill:var(--muted)">right-angle "city block" steps</text>
+
+      <!-- Chebyshev panel -->
+      <text x="520" y="20" text-anchor="middle" font-size="11.5" style="fill:var(--purple);font-weight:700">Chebyshev</text>
+      <line x1="450" y1="190" x2="600" y2="190" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="450" y1="190" x2="450" y2="50" style="stroke:var(--dim);stroke-width:1"/>
+      <circle cx="470" cy="170" r="4.5" style="fill:var(--teal)"/>
+      <text x="460" y="205" font-size="10" style="fill:var(--teal)">P</text>
+      <circle cx="570" cy="70" r="4.5" style="fill:var(--coral)"/>
+      <text x="578" y="65" font-size="10" style="fill:var(--coral)">Q</text>
+      <line x1="470" y1="170" x2="470" y2="70" stroke-dasharray="3,3" style="stroke:var(--muted);stroke-width:1.5"/>
+      <line x1="470" y1="70" x2="570" y2="70" style="stroke:var(--purple);stroke-width:2.5"/>
+      <text x="478" y="120" font-size="9" style="fill:var(--muted)">15 (ignored)</text>
+      <text x="500" y="63" font-size="9" style="fill:var(--purple);font-weight:700">30 (the max — this IS the distance)</text>
+      <text x="520" y="225" text-anchor="middle" font-size="9" style="fill:var(--muted)">only the LARGER single-axis gap counts</text>
+    </svg>
+    <p>All three panels connect the exact same P and Q. Euclidean cuts straight through (shortest possible path). Manhattan is forced to travel along the grid lines, like walking city blocks — it never gets to cut diagonally, so its total is always ≥ Euclidean's. Chebyshev ignores the smaller gap (Age) entirely and reports only the larger one (Spending) — it's measuring "the worst single dimension," not total travel distance.</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 3: K-MEANS ALGORITHM -->
+<div class="page" id="page-3">
+<div class="pg">
+  <h1>The K-Means Algorithm — Step by Step</h1>
+  <p class="sub">A deceptively simple loop that repeats until the clusters stop changing.</p>
+
+  <h2>Steps</h2>
+  <ol class="st">
+    <li><strong>Initialize:</strong> pick K random centroids (either random data points, or random values per variable)</li>
+    <li><strong>Assign:</strong> for each data point, calculate distance to all K centroids, assign it to the nearest one</li>
+    <li><strong>Update:</strong> recompute each centroid as the average (mean) of all points now assigned to it</li>
+    <li><strong>Repeat</strong> steps 2-3 until centroids stop moving (convergence) or a maximum iteration count is reached</li>
+  </ol>
+
+  <h2>Formula — The Objective Being Minimized</h2>
+  <div class="fm">WCSS = Σ (for each cluster) Σ (for each point in cluster) ||point − centroid||²</div>
+  <p>WCSS (Within-Cluster Sum of Squares, also called "inertia") is exactly the quantity K-Means is trying to minimize — the squared distance from every point to its own cluster's centroid, summed across all clusters.</p>
+
+  <div class="cd hl">
+    <span class="tg bl">Let's Actually Calculate It — 5 Points, 2 Clusters</span>
+    <p>In plain words, WCSS asks: <em>"for every single point, how far is it from the center of its OWN cluster? Square that distance, then add up every point's squared distance."</em> A small cluster where points huddle close to their centroid gives a LOW WCSS; a loose, spread-out cluster gives a HIGH WCSS. Here's the full calculation, step by step.</p>
+    <p><strong>Setup:</strong> Cluster A has 3 points, centroid (2, 2). Cluster B has 2 points, centroid (8, 8).</p>
+    <table class="tb">
+      <tr><th>Cluster</th><th>Point</th><th>Centroid</th><th>Squared Distance</th></tr>
+      <tr><td rowspan="3">A</td><td>(1, 1)</td><td>(2, 2)</td><td>(1−2)² + (1−2)² = 1 + 1 = <strong>2</strong></td></tr>
+      <tr><td>(3, 3)</td><td>(2, 2)</td><td>(3−2)² + (3−2)² = 1 + 1 = <strong>2</strong></td></tr>
+      <tr><td>(2, 1)</td><td>(2, 2)</td><td>(2−2)² + (1−2)² = 0 + 1 = <strong>1</strong></td></tr>
+      <tr><td rowspan="2">B</td><td>(7, 9)</td><td>(8, 8)</td><td>(7−8)² + (9−8)² = 1 + 1 = <strong>2</strong></td></tr>
+      <tr><td>(9, 7)</td><td>(8, 8)</td><td>(9−8)² + (7−8)² = 1 + 1 = <strong>2</strong></td></tr>
+    </table>
+    <p><strong>Cluster A's contribution:</strong> 2 + 2 + 1 = <strong>5</strong> &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Cluster B's contribution:</strong> 2 + 2 = <strong>4</strong></p>
+    <div class="fm">WCSS = 5 + 4 = 9</div>
+    <p>That single number, 9, summarizes how "tight" this entire clustering solution is. Run K-Means again with a different K, get a different WCSS — smaller is tighter, and comparing WCSS across different K values is exactly what the Elbow Method (next section) plots.</p>
+  </div>
+
+  <h2>Visual — The Iterative Loop</h2>
+  <div class="ex">
+    <svg viewBox="0 0 600 170" style="width:100%;height:auto;">
+      <rect x="20" y="60" width="120" height="45" rx="8" style="fill:var(--glow);stroke:var(--accent);stroke-width:1.5"/>
+      <text x="80" y="87" text-anchor="middle" font-size="11" style="fill:var(--accent);font-weight:700">1. Init K centroids</text>
+      <line x1="140" y1="82" x2="175" y2="82" style="stroke:var(--muted);stroke-width:1.5"/>
+      <polygon points="175,82 165,77 165,87" style="fill:var(--muted)"/>
+
+      <rect x="180" y="60" width="120" height="45" rx="8" style="fill:var(--card);stroke:var(--teal);stroke-width:1.5"/>
+      <text x="240" y="80" text-anchor="middle" font-size="11" style="fill:var(--teal);font-weight:700">2. Assign points</text>
+      <text x="240" y="95" text-anchor="middle" font-size="9" style="fill:var(--teal)">to nearest centroid</text>
+      <line x1="300" y1="82" x2="335" y2="82" style="stroke:var(--muted);stroke-width:1.5"/>
+      <polygon points="335,82 325,77 325,87" style="fill:var(--muted)"/>
+
+      <rect x="340" y="60" width="120" height="45" rx="8" style="fill:var(--card);stroke:var(--gold);stroke-width:1.5"/>
+      <text x="400" y="80" text-anchor="middle" font-size="11" style="fill:var(--gold);font-weight:700">3. Update centroids</text>
+      <text x="400" y="95" text-anchor="middle" font-size="9" style="fill:var(--gold)">= mean of assigned points</text>
+
+      <path d="M400,105 C400,140 240,140 240,105" fill="none" style="stroke:var(--coral);stroke-width:1.5" marker-end="url(#arrowhead)"/>
+      <text x="320" y="150" text-anchor="middle" font-size="9.5" style="fill:var(--coral)">repeat until centroids stop moving</text>
+
+      <rect x="500" y="60" width="90" height="45" rx="8" style="fill:rgba(52,211,153,.2);stroke:var(--green);stroke-width:2"/>
+      <text x="545" y="87" text-anchor="middle" font-size="11" style="fill:var(--green);font-weight:700">Converged!</text>
+      <line x1="460" y1="82" x2="495" y2="82" style="stroke:var(--muted);stroke-width:1.5"/>
+      <polygon points="495,82 485,77 485,87" style="fill:var(--muted)"/>
+    </svg>
+  </div>
+
+  <h2>Python Code</h2>
+  <div class="co"><span class="cl">Python</span><code><span class="kw">from</span> sklearn.cluster <span class="kw">import</span> KMeans
+
+kmeans = KMeans(n_clusters=<span class="num">4</span>, init=<span class="str">'k-means++'</span>, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+labels = kmeans.fit_predict(scaled_data)
+
+<span class="fn">print</span>(<span class="str">f"WCSS (inertia): {kmeans.inertia_:.1f}"</span>)</code></div>
+
+  <h2>Advantages & Disadvantages</h2>
+  <div class="g2">
+    <div class="gc pro"><h4>Advantages</h4><ul><li>Easy to implement</li><li>Works great on large-scale data</li><li>Guarantees convergence</li><li>Easily assigns new examples</li></ul></div>
+    <div class="gc con"><h4>Disadvantages</h4><ul><li>Choosing K is genuinely difficult (next section)</li><li>Centroid initialization matters a lot — a bad start can converge to a worse solution</li><li>Only handles numeric data directly</li></ul></div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 4: CHOOSING K -->
+<div class="page" id="page-4">
+<div class="pg">
+  <h1>Choosing K — Elbow Method & Silhouette Score</h1>
+  <p class="sub">There is no formula that hands you the "correct" K — but there are two well-established heuristics that get you close.</p>
+
+  <h2>Definition — Elbow Method</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>The Elbow Method runs K-Means across a range of K values and plots WCSS (inertia) against K.</strong> As K increases, WCSS always decreases (more clusters = tighter fit) — but the RATE of decrease slows down sharply at some point, forming an "elbow" bend. That bend is the suggested optimal K.</p>
+  </div>
+
+  <h2>Definition — Silhouette Score</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>The Silhouette Score measures how similar a point is to its own cluster (cohesion) compared to the nearest other cluster (separation).</strong> It ranges from -1 to +1: near +1 means the point is well-matched to its own cluster and far from neighbors; near 0 means it's right on a cluster boundary; negative means it's likely in the WRONG cluster.</p>
+  </div>
+
+  <h2>Formula</h2>
+  <div class="fm">Silhouette(i) = ( b(i) − a(i) ) / max( a(i), b(i) )</div>
+  <p style="font-size:13px;color:var(--muted);">where a(i) = average distance from point i to other points in its OWN cluster, and b(i) = average distance from point i to points in the NEAREST other cluster.</p>
+
+  <h2>Example — Real Numbers, Customer Segmentation</h2>
+  <div class="ex">
+    <div class="et">🎓 Actual Notebook Output</div>
+    <table class="tb">
+      <tr><th>K</th><th>WCSS (Inertia)</th><th>% Drop from Previous K</th><th>Silhouette</th></tr>
+      <tr><td>2</td><td>31,602</td><td>—</td><td>0.269</td></tr>
+      <tr><td>3</td><td>24,090</td><td>-23.8%</td><td>0.306</td></tr>
+      <tr><td style="color:var(--gold);font-weight:700;">4</td><td style="color:var(--gold);font-weight:700;">18,677</td><td style="color:var(--gold);font-weight:700;">-22.5%</td><td>0.320</td></tr>
+      <tr><td>5</td><td>16,169</td><td>-13.4% ← rate of decline drops sharply here</td><td>0.328</td></tr>
+      <tr><td>10</td><td>9,346</td><td>(gradual decline continues)</td><td>0.336 (highest, but barely different)</td></tr>
+    </table>
+    <p><strong>Reading this honestly:</strong> the elbow bends most clearly around K=4-5 (where the decline rate drops from >20% to ~13%). Silhouette technically keeps creeping up all the way to K=10, but the improvement from K=4 (0.320) to K=10 (0.336) is tiny — not worth 6 extra, harder-to-interpret clusters. We chose <strong>K=4</strong>, which conveniently matches this dataset's real known business segments (A/B/C/D).</p>
+  </div>
+
+  <h2>Visual — Reading Both Charts</h2>
+  <div class="ex">
+    <svg viewBox="0 0 600 190" style="width:100%;height:auto;">
+      <text x="150" y="20" text-anchor="middle" font-size="11" style="fill:var(--muted);font-weight:700">Elbow Method (WCSS vs K)</text>
+      <line x1="40" y1="160" x2="260" y2="160" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="40" y1="160" x2="40" y2="30" style="stroke:var(--dim);stroke-width:1"/>
+      <path d="M50,40 C80,80 110,120 140,135 C170,145 200,150 250,155" fill="none" style="stroke:var(--accent);stroke-width:2.5"/>
+      <circle cx="140" cy="135" r="5" style="fill:var(--gold)"/>
+      <text x="140" y="120" text-anchor="middle" font-size="9" style="fill:var(--gold);font-weight:700">elbow ≈ K=4</text>
+
+      <text x="450" y="20" text-anchor="middle" font-size="11" style="fill:var(--muted);font-weight:700">Silhouette Score vs K</text>
+      <line x1="340" y1="160" x2="560" y2="160" style="stroke:var(--dim);stroke-width:1"/>
+      <line x1="340" y1="160" x2="340" y2="30" style="stroke:var(--dim);stroke-width:1"/>
+      <path d="M350,110 C380,90 410,85 440,80 C470,78 500,72 550,65" fill="none" style="stroke:var(--teal);stroke-width:2.5"/>
+      <text x="470" y="130" text-anchor="middle" font-size="9" style="fill:var(--muted)">gently rising, no sharp peak</text>
+    </svg>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">A Real, Honest Lesson</span>
+    <p>Real data rarely produces a textbook-perfect elbow or a sharply peaked silhouette curve. When the methods disagree or show only marginal differences, use domain judgment — a simpler, more interpretable K is often the better business choice over chasing the last 0.01 of silhouette score.</p>
+  </div>
+
+  <h2>Python Code</h2>
+  <div class="co"><span class="cl">Python</span><code><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> silhouette_score
+
+inertias, sil_scores = [], []
+<span class="kw">for</span> k <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>, <span class="num">11</span>):
+    km = KMeans(n_clusters=k, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+    labels = km.fit_predict(scaled_data)
+    inertias.append(km.inertia_)
+    sil_scores.append(silhouette_score(scaled_data, labels))</code></div>
+</div>
+</div>
+
+<!-- PAGE 5: HIERARCHICAL CLUSTERING INTRO -->
+<div class="page" id="page-5">
+<div class="pg">
+  <h1>Introduction to Hierarchical Clustering</h1>
+  <p class="sub">A completely different philosophy: build the whole family tree of clusters, then decide afterward how many you want.</p>
+
+  <h2>Definition</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>Hierarchical clustering sequentially groups records into clusters based on distances between records and between clusters</strong>, producing a tree-like structure called a <strong>dendrogram</strong> — no need to decide K in advance.</p>
+  </div>
+
+  <h2>Strengths & Disadvantages</h2>
+  <div class="g2">
+    <div class="gc pro">
+      <h4>Strengths</h4>
+      <ul><li>No assumptions on the number of clusters upfront</li><li>Any desired number of clusters obtained by "cutting" the dendrogram at the right level</li><li>May correspond to meaningful taxonomies</li></ul>
+    </div>
+    <div class="gc con">
+      <h4>Disadvantages</h4>
+      <ul><li>Time complexity — not suitable for very large datasets</li><li>Very sensitive to outliers</li></ul>
+    </div>
+  </div>
+
+  <h2>K-Means vs Hierarchical — When to Use Which</h2>
+  <table class="tb">
+    <tr><th></th><th>K-Means</th><th>Hierarchical</th></tr>
+    <tr><td>Must specify K upfront?</td><td>Yes</td><td>No — decide after seeing the dendrogram</td></tr>
+    <tr><td>Scales to large data?</td><td>Yes — efficient</td><td>No — O(n²) memory/time, struggles beyond a few thousand rows</td></tr>
+    <tr><td>Output</td><td>Flat cluster assignments</td><td>A full nested hierarchy (dendrogram)</td></tr>
+    <tr><td>Outlier sensitivity</td><td>Moderate</td><td>High</td></tr>
+  </table>
+
+  <div class="biz">
+    <div class="et">💼 Business Use Case — Why the Hierarchy Itself Is Valuable</div>
+    <p>A retailer might discover that "high spenders" splits further into "young high spenders" and "older high spenders" only by looking at the dendrogram's finer branches — a flat K-Means result at K=3 would never reveal that nested relationship. Hierarchical clustering is popular in biology (phylogenetics), document clustering, and image segmentation for exactly this reason.</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 6: AGGLOMERATIVE CLUSTERING -->
+<div class="page" id="page-6">
+<div class="pg">
+  <h1>Agglomerative Clustering, Linkage & Dendrograms</h1>
+  <p class="sub">The "bottom-up" way hierarchical clustering actually gets built.</p>
+
+  <h2>Definition</h2>
+  <div class="cd hl">
+    <span class="tg bl">In Plain English</span>
+    <p><strong>Agglomerative clustering is a bottom-up approach</strong> — it starts with every single data point as its own individual cluster, then iteratively merges the two CLOSEST clusters together, repeating until all points belong to a single cluster.</p>
+  </div>
+
+  <h2>Steps</h2>
+  <ol class="st">
+    <li>Start with each data point as a separate cluster</li>
+    <li>Identify the two closest clusters</li>
+    <li>Merge them into one cluster</li>
+    <li>Repeat steps 2-3 until all points are in a single cluster</li>
+  </ol>
+
+  <h2>Linkage Criteria — How "Distance Between Clusters" Gets Defined</h2>
+  <table class="tb">
+    <tr><th>Linkage</th><th>Definition</th></tr>
+    <tr><td><strong>Single</strong></td><td>Shortest distance between any two points, one from each cluster</td></tr>
+    <tr><td><strong>Complete</strong></td><td>Longest distance between any two points, one from each cluster</td></tr>
+    <tr><td><strong>Average</strong></td><td>Average distance between every pair of points, one from each cluster</td></tr>
+    <tr><td><strong>Centroid</strong></td><td>Distance between the two clusters' mean vectors (centroids)</td></tr>
+    <tr><td><strong>Ward's Method</strong></td><td>Merges the pair that produces the smallest increase in total within-cluster variance</td></tr>
+  </table>
+
+  <h2>Visual — The Dendrogram</h2>
+  <div class="ex">
+    <svg viewBox="0 0 500 200" style="width:100%;max-width:460px;height:auto;">
+      <text x="250" y="20" text-anchor="middle" font-size="11" style="fill:var(--muted);font-weight:700">A Dendrogram: x-axis = records, height = merge distance</text>
+      <line x1="60" y1="160" x2="60" y2="80" style="stroke:var(--teal);stroke-width:2"/>
+      <line x1="60" y1="80" x2="120" y2="80" style="stroke:var(--teal);stroke-width:2"/>
+      <line x1="120" y1="160" x2="120" y2="80" style="stroke:var(--teal);stroke-width:2"/>
+
+      <line x1="200" y1="160" x2="200" y2="100" style="stroke:var(--teal);stroke-width:2"/>
+      <line x1="260" y1="160" x2="260" y2="100" style="stroke:var(--teal);stroke-width:2"/>
+      <line x1="200" y1="100" x2="260" y2="100" style="stroke:var(--teal);stroke-width:2"/>
+
+      <line x1="90" y1="80" x2="90" y2="50" style="stroke:var(--gold);stroke-width:2"/>
+      <line x1="230" y1="100" x2="230" y2="50" style="stroke:var(--gold);stroke-width:2"/>
+      <line x1="90" y1="50" x2="230" y2="50" style="stroke:var(--gold);stroke-width:2"/>
+
+      <line x1="40" y1="35" x2="460" y2="35" stroke-dasharray="4,3" style="stroke:var(--coral);stroke-width:1.5"/>
+      <text x="470" y="38" font-size="9" style="fill:var(--coral)">cutoff</text>
+
+      <text x="60" y="175" text-anchor="middle" font-size="9" style="fill:var(--muted)">A</text>
+      <text x="120" y="175" text-anchor="middle" font-size="9" style="fill:var(--muted)">B</text>
+      <text x="200" y="175" text-anchor="middle" font-size="9" style="fill:var(--muted)">C</text>
+      <text x="260" y="175" text-anchor="middle" font-size="9" style="fill:var(--muted)">D</text>
+    </svg>
+    <p>Similar records are joined by lines whose vertical HEIGHT reflects the distance between them — the greater the height, the more dissimilar. Choosing a cutoff distance (the dashed red line) on the y-axis creates a specific set of clusters by "cutting" the tree at that level.</p>
+  </div>
+
+  <h2>Scaling Before Clustering</h2>
+  <table class="tb">
+    <tr><th>Method</th><th>Effect</th></tr>
+    <tr><td><strong>Z-Score (Standardization)</strong></td><td>Rescales features to mean=0, std=1 — the standard choice for clustering</td></tr>
+    <tr><td><strong>Min-Max Scaling</strong></td><td>Rescales to a fixed 0-1 range — can suppress the effect of outliers due to a smaller resulting standard deviation</td></tr>
+  </table>
+
+  <div class="cd warn">
+    <span class="tg yl">Why Scaling Is Non-Negotiable for Clustering</span>
+    <p>Both K-Means and Hierarchical Clustering rely entirely on DISTANCE calculations. If one feature (like Income, ranging 0-500,000) isn't scaled against another (like Age, ranging 18-90), the large-scale feature will completely dominate every distance calculation — the algorithm would essentially cluster on Income alone, ignoring Age almost entirely.</p>
+  </div>
+
+  <h2>Python Code</h2>
+  <div class="co"><span class="cl">Python</span><code><span class="kw">from</span> scipy.cluster.hierarchy <span class="kw">import</span> dendrogram, linkage
+
+Z = linkage(scaled_data, method=<span class="str">'ward'</span>)
+dendrogram(Z, truncate_mode=<span class="str">'lastp'</span>, p=<span class="num">15</span>)</code></div>
+</div>
+</div>
+
+<!-- PAGE 7: HANDS-ON CUSTOMER SEGMENTATION -->
+<div class="page" id="page-7">
+<div class="pg">
+  <h1>Hands-On: Customer Segmentation</h1>
+  <p class="sub">10,695 customers, 4 real numeric/ordinal signals — and a genuine business validation at the end.</p>
+
+  <h2>How It Works — Build Order</h2>
+  <ol class="st">
+    <li><strong>EDA</strong> — distributions of Age, Work_Experience, Family_Size, Spending_Score; missing value audit</li>
+    <li><strong>Clean</strong> — impute missing Work_Experience/Family_Size with median, categoricals with mode</li>
+    <li><strong>Engineer</strong> — map Spending_Score (Low/Average/High) to an ordinal 0/1/2; scale all features</li>
+    <li><strong>Elbow + Silhouette</strong> — sweep K=2 to 10</li>
+    <li><strong>Fit final K-Means</strong> — K=4</li>
+    <li><strong>Profile</strong> each cluster's average Age/Experience/Family Size/Spending</li>
+    <li><strong>Validate</strong> — cross-check against the dataset's real (but unused-in-training) Segmentation labels</li>
+  </ol>
+
+  <h2>The Four Discovered Segments</h2>
+  <div class="biz">
+    <div class="et">💼 Real Cluster Profiles from the Notebook</div>
+    <table class="tb">
+      <tr><th>Cluster</th><th>Avg Age</th><th>Avg Experience</th><th>Avg Family Size</th><th>Avg Spending</th><th>Likely Persona</th></tr>
+      <tr><td>0</td><td>28.5</td><td>1.1</td><td>4.3</td><td>Low</td><td>Young Families, Budget-Conscious</td></tr>
+      <tr><td>1</td><td>49.5</td><td>1.0</td><td>1.6</td><td>Very Low</td><td>Older, Small Household, Low Spenders</td></tr>
+      <tr><td>2</td><td>36.8</td><td>8.4</td><td>2.5</td><td>Moderate</td><td>Experienced Professionals</td></tr>
+      <tr><td>3</td><td>53.9</td><td>1.2</td><td>3.0</td><td>High</td><td>Affluent Older Spenders</td></tr>
+    </table>
+    <p>Cross-checking against the dataset's real business segments (A/B/C/D, never shown to the algorithm) shows meaningful — though imperfect — overlap: Cluster 3 aligns most with segment C, Cluster 0 leans toward segment D. This partial alignment is a realistic, honest outcome: unsupervised clusters capture genuine structure, but won't perfectly reproduce a human-defined business taxonomy built on additional context the algorithm never saw.</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 8: HANDS-ON BANK TRANSACTIONS -->
+<div class="page" id="page-8">
+<div class="pg">
+  <h1>Hands-On: Bank Transactions</h1>
+  <p class="sub">Where a single missing step — log-transforming skewed data — is the difference between useless and genuinely insightful clusters.</p>
+
+  <h2>How It Works — Build Order</h2>
+  <ol class="st">
+    <li><strong>Clean</strong> — drop the 1,290 rows with sentinel DOB "1/1/1800" (a placeholder for missing birthdate, not a real value)</li>
+    <li><strong>Engineer</strong> — derive customer Age from DOB and transaction date</li>
+    <li><strong>Cluster on RAW features</strong> — CustAccountBalance & TransactionAmount, scaled but not transformed</li>
+    <li><strong>Discover the problem</strong> — wildly imbalanced clusters</li>
+    <li><strong>Fix with log-transform</strong> — re-cluster</li>
+    <li><strong>Elbow + Silhouette on the fixed data</strong> — confirm K=3</li>
+  </ol>
+
+  <h2>The Critical Finding</h2>
+  <div class="biz">
+    <div class="et">💼 Raw vs Log-Transformed — Real Cluster Sizes</div>
+    <table class="tb">
+      <tr><th>Approach</th><th>Cluster Sizes</th><th>Verdict</th></tr>
+      <tr><td>Raw scaled features</td><td>18,555 / 10 / 113</td><td style="color:var(--coral);font-weight:700;">❌ Useless — 99.3% dumped into one giant cluster</td></tr>
+      <tr><td>Log-transformed features</td><td>7,896 / 8,426 / 2,356</td><td style="color:var(--green);font-weight:700;">✅ Balanced, genuinely meaningful segments</td></tr>
+    </table>
+    <p><strong>Why this happens:</strong> CustAccountBalance ranges from 0 to over 51 MILLION, with a median of only ~18,000 — extreme right-skew. A handful of ultra-high-balance accounts create such enormous raw distances that K-Means essentially just isolates those outliers, ignoring the meaningful variation among the other 99% of ordinary customers entirely.</p>
+  </div>
+
+  <h2>The Fix, and the Resulting Segments</h2>
+  <div class="ex">
+    <div class="et">🎓 Log-Transformed Cluster Profiles (K=3, Elbow + Silhouette Both Agree)</div>
+    <table class="tb">
+      <tr><th>Cluster</th><th>Avg Balance</th><th>Avg Transaction</th><th>Persona</th></tr>
+      <tr><td>0</td><td>₹48,239</td><td>₹166</td><td>Everyday, low-value transactors</td></tr>
+      <tr><td>1</td><td>₹200,108</td><td>₹3,090</td><td>Higher-balance, higher-spend customers</td></tr>
+      <tr><td>2</td><td>₹469</td><td>₹696</td><td>Very low balance, moderate spend — possibly newer or lower-income accounts</td></tr>
+    </table>
+    <p>Silhouette peaked at K=3 (0.359) — both statistically supported AND business-interpretable, unlike the raw version's meaningless outlier-driven split.</p>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">The Universal Lesson</span>
+    <p>ALWAYS inspect your feature distributions (histograms, min/max, skewness) before clustering financial or count-based data. Extreme skew is common in money-related columns — log-transformation (<code>np.log1p</code>) is a simple, powerful default fix.</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 9: PRO TIPS -->
+<div class="page" id="page-9">
+<div class="pg">
+  <h1>Pro Tips</h1>
+  <p class="sub">Habits that separate clustering results you can trust from ones that quietly mislead.</p>
+
+  <div class="tip"><div class="tn">📏 Scaling</div>Always scale features before clustering — distance-based algorithms will let large-scale features silently dominate otherwise. Z-score (StandardScaler) is the standard default.</div>
+
+  <div class="tip"><div class="tn">📈 Skewed Data</div>Check feature distributions BEFORE clustering. Heavily skewed financial/count data (account balances, transaction amounts, revenue) should usually be log-transformed first — as today's Bank Transactions example dramatically demonstrated.</div>
+
+  <div class="tip"><div class="tn">🎯 Choosing K</div>Don't blindly pick argmax(silhouette) — a marginal improvement (e.g., 0.336 vs 0.320) rarely justifies a harder-to-interpret, more complex solution. Combine the Elbow Method, Silhouette Score, AND business judgment.</div>
+
+  <div class="tip"><div class="tn">🎯 Choosing K</div>If your dataset has a known, real number of natural groups (e.g., product tiers, known customer segments), let that inform your K choice — don't ignore domain knowledge in favor of a purely statistical answer.</div>
+
+  <div class="tip"><div class="tn">🌳 Hierarchical Clustering</div>Never run Hierarchical Clustering on very large datasets (tens of thousands+ rows) without sampling first — its O(n²) memory and time cost makes it impractical, unlike K-Means.</div>
+
+  <div class="tip"><div class="tn">🌳 Hierarchical Clustering</div>Ward's linkage is a strong general-purpose default — it tends to produce more balanced, compact clusters than single or complete linkage.</div>
+
+  <div class="tip"><div class="tn">🔢 K-Means Limitations</div>K-Means only handles numeric data directly — encode categoricals first (one-hot or ordinal), and be aware that one-hot-encoded columns can dilute distance meaningfulness in high dimensions.</div>
+
+  <div class="tip"><div class="tn">🎲 Initialization</div>Always use <code>init='k-means++'</code> (scikit-learn's default) rather than fully random initialization — it spreads initial centroids out intelligently, reducing the risk of a poor local optimum. Also set <code>n_init=10</code> or higher to run multiple random starts and keep the best.</div>
+
+  <div class="tip"><div class="tn">✅ Validation</div>When you have partial ground truth (like the Customer Segmentation dataset's real labels), cross-tabulate your clusters against it as a sanity check — even imperfect alignment tells you the clusters are capturing something real.</div>
+</div>
+</div>
+
+<!-- PAGE 10: WORKSHOP -->
+<div class="page" id="page-10">
+<div class="pg">
+  <h1>Workshop — Hands-On Practice</h1>
+  <p class="sub">Use both companion notebooks for every task below.</p>
+
+  <div class="cd hl">
+    <span class="tg bl">Task 1 — Try a Different Distance Metric</span>
+    <p>Re-run K-Means on Customer Segmentation using Manhattan distance (via <code>sklearn_extra.cluster.KMedoids</code> or a manual implementation). Do the resulting clusters differ meaningfully from the Euclidean version?</p>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">Task 2 — Compare Scaling Methods</span>
+    <p>Re-run the Bank Transactions clustering using Min-Max scaling instead of Z-score standardization on the log-transformed features. Does the choice of scaler change the resulting cluster sizes?</p>
+  </div>
+
+  <div class="cd ok">
+    <span class="tg gn">Task 3 — Build a Dendrogram</span>
+    <p>On a random sample of 200 Customer Segmentation rows, build a dendrogram using Ward's linkage. At what height would you cut it to get 4 clusters? Compare those clusters to the K-Means K=4 result.</p>
+  </div>
+
+  <div class="cd info">
+    <span class="tg sk">Task 4 — Linkage Comparison</span>
+    <p>Repeat Task 3 with Single, Complete, and Average linkage. Which produces the most balanced cluster sizes? Which is most different from Ward's?</p>
+  </div>
+
+  <div class="cd hl">
+    <span class="tg bl">Task 5 — RFM Segmentation (Bonus, See Notebook)</span>
+    <p>The companion Bank Transactions notebook includes a bonus customer-level RFM (Recency, Frequency, Monetary) aggregation. Compare these customer-level clusters to the transaction-level clusters — which tells a more actionable business story?</p>
+  </div>
+
+  <div class="cd warn">
+    <span class="tg yl">Task 6 — Elbow on a New K Range</span>
+    <p>Extend the Customer Segmentation Elbow/Silhouette sweep to K=2 through K=20. Does a clearer pattern emerge, or does the ambiguity persist?</p>
+  </div>
+
+  <div class="cd ok">
+    <span class="tg gn">Task 7 — Outlier Sensitivity Test</span>
+    <p>Artificially inject 5 extreme outlier rows into the Customer Segmentation dataset (e.g., Age=999). Re-run K-Means and observe how much the cluster assignments change — connect this to today's Bank Transactions "aha" moment.</p>
+  </div>
+
+  <div class="cd err">
+    <span class="tg rd">Task 8 — Silhouette Per-Sample Plot (Bonus)</span>
+    <p>Using <code>sklearn.metrics.silhouette_samples</code>, plot a per-sample silhouette diagram for the K=4 Customer Segmentation solution. Are there any clusters with many negative-silhouette (likely misassigned) points?</p>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 11: QUIZ -->
+<div class="page" id="page-11">
+<div class="pg">
+  <h1>Quick Quiz</h1>
+  <p class="sub">Test your understanding — click an option for instant feedback.</p>
+
+  <div class="qz" id="q1">
+    <div class="qt">Q1: What is the primary goal of unsupervised learning?</div>
+    <div class="qo" onclick="chk('q1',this,false)">A) Predict a labeled target variable as accurately as possible</div>
+    <div class="qo" onclick="chk('q1',this,true)">B) Find hidden patterns in data that has no labels or target variable</div>
+    <div class="qo" onclick="chk('q1',this,false)">C) Always outperform supervised learning models</div>
+    <div class="qo" onclick="chk('q1',this,false)">D) Reduce the number of features in a dataset</div>
+    <div class="qf" id="q1f"></div>
+  </div>
+
+  <div class="qz" id="q2">
+    <div class="qt">Q2: In K-Means, what does the "centroid" represent?</div>
+    <div class="qo" onclick="chk('q2',this,false)">A) The single furthest point from a cluster</div>
+    <div class="qo" onclick="chk('q2',this,false)">B) A randomly chosen data point that never changes</div>
+    <div class="qo" onclick="chk('q2',this,true)">C) The mean position of all points currently assigned to a cluster</div>
+    <div class="qo" onclick="chk('q2',this,false)">D) The total count of points in a cluster</div>
+    <div class="qf" id="q2f"></div>
+  </div>
+
+  <div class="qz" id="q3">
+    <div class="qt">Q3: In the Bank Transactions example, why did clustering on RAW (untransformed) features fail?</div>
+    <div class="qo" onclick="chk('q3',this,false)">A) K-Means cannot handle numeric data</div>
+    <div class="qo" onclick="chk('q3',this,false)">B) The dataset had too few rows</div>
+    <div class="qo" onclick="chk('q3',this,false)">C) The Elbow Method doesn't work on financial data</div>
+    <div class="qo" onclick="chk('q3',this,true)">D) A few extreme outliers dominated the distance calculations, dumping 99% of data into one giant cluster</div>
+    <div class="qf" id="q3f"></div>
+  </div>
+
+  <div class="qz" id="q4">
+    <div class="qt">Q4: What does a Silhouette Score close to -1 indicate for a data point?</div>
+    <div class="qo" onclick="chk('q4',this,false)">A) It is perfectly matched to its assigned cluster</div>
+    <div class="qo" onclick="chk('q4',this,false)">B) It sits exactly on the boundary between two clusters</div>
+    <div class="qo" onclick="chk('q4',this,true)">C) It is likely assigned to the WRONG cluster — it's closer to a neighboring cluster than its own</div>
+    <div class="qo" onclick="chk('q4',this,false)">D) The dataset has too many features</div>
+    <div class="qf" id="q4f"></div>
+  </div>
+
+  <div class="qz" id="q5">
+    <div class="qt">Q5: What is the main advantage of Hierarchical Clustering over K-Means?</div>
+    <div class="qo" onclick="chk('q5',this,true)">A) You don't need to specify the number of clusters in advance — decide after seeing the dendrogram</div>
+    <div class="qo" onclick="chk('q5',this,false)">B) It scales better to very large datasets</div>
+    <div class="qo" onclick="chk('q5',this,false)">C) It is completely insensitive to outliers</div>
+    <div class="qo" onclick="chk('q5',this,false)">D) It only works with categorical data</div>
+    <div class="qf" id="q5f"></div>
+  </div>
+
+  <div class="qz" id="q6">
+    <div class="qt">Q6: In a dendrogram, what does the HEIGHT at which two branches merge represent?</div>
+    <div class="qo" onclick="chk('q6',this,false)">A) The number of data points in each branch</div>
+    <div class="qo" onclick="chk('q6',this,false)">B) The order in which the data was originally collected</div>
+    <div class="qo" onclick="chk('q6',this,false)">C) The average value of the merged cluster</div>
+    <div class="qo" onclick="chk('q6',this,true)">D) The distance/dissimilarity between the two merging clusters — taller merges mean more dissimilar</div>
+    <div class="qf" id="q6f"></div>
+  </div>
+
+  <div class="qz" id="q7">
+    <div class="qt">Q7: Why is feature scaling essential before running K-Means or Hierarchical Clustering?</div>
+    <div class="qo" onclick="chk('q7',this,false)">A) Scaling is required by Python's syntax</div>
+    <div class="qo" onclick="chk('q7',this,true)">B) Both algorithms rely on distance calculations, and unscaled large-range features would dominate the result</div>
+    <div class="qo" onclick="chk('q7',this,false)">C) It's not actually necessary for clustering algorithms</div>
+    <div class="qo" onclick="chk('q7',this,false)">D) Scaling removes the need to choose a value of K</div>
+    <div class="qf" id="q7f"></div>
+  </div>
+</div>
+</div>
+
+<!-- PAGE 12: INTERVIEW QUESTIONS -->
+<div class="page" id="page-12">
+<div class="pg">
+  <h1>Interview Questions</h1>
+  <p class="sub">Common questions asked in Data Science / ML interviews on this topic. Click a question to reveal the answer.</p>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q1. Why is unsupervised learning considered harder than supervised learning? <span class="car">▾</span></div>
+    <div class="ans">Without a target variable, there's no ground truth to measure "correctness" against — no accuracy, no confusion matrix. The objective function itself is harder to define (what does "good clustering" mean?), and results require domain judgment to interpret and validate rather than an objective metric.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q2. Walk through the K-Means algorithm step by step. <span class="car">▾</span></div>
+    <div class="ans">First, initialize K centroids (randomly or via k-means++ for smarter spacing). Then repeat two steps until convergence: (1) assign each data point to its nearest centroid based on distance, and (2) update each centroid to be the mean of all points now assigned to it. The algorithm converges when centroid positions stop changing meaningfully between iterations.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q3. How do you choose the optimal value of K in K-Means? <span class="car">▾</span></div>
+    <div class="ans">Two common heuristics: the Elbow Method (plot WCSS/inertia against K, look for where the rate of decrease sharply slows — the "elbow") and the Silhouette Score (measures cohesion vs separation, ranging -1 to 1, choose the K maximizing it). Neither is definitive on its own — real data often shows ambiguous elbows or gently-rising silhouette curves, so domain knowledge and interpretability should also guide the final choice.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q4. What's the difference between K-Means and Hierarchical Clustering? <span class="car">▾</span></div>
+    <div class="ans">K-Means requires specifying K upfront, scales well to large datasets, and produces flat (non-nested) cluster assignments. Hierarchical Clustering builds a full nested tree (dendrogram) without needing K in advance, letting you choose the number of clusters afterward by cutting the tree at a chosen height — but it has O(n²) time/memory complexity, making it impractical for very large datasets, and it's more sensitive to outliers.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q5. Explain the different linkage criteria in Agglomerative Clustering. <span class="car">▾</span></div>
+    <div class="ans">Single linkage uses the SHORTEST distance between any two points across two clusters (can create long, straggly "chain" clusters). Complete linkage uses the LONGEST such distance (tends to create more compact, balanced clusters). Average linkage uses the average distance across all cross-cluster point pairs. Ward's method instead merges whichever pair of clusters causes the smallest increase in total within-cluster variance — often the best general-purpose default.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q6. Why does feature scaling matter so much for clustering? <span class="car">▾</span></div>
+    <div class="ans">Both K-Means and Hierarchical Clustering fundamentally rely on distance calculations between points. If one feature has a much larger numeric range than another (e.g., income in the hundreds of thousands vs age in the tens), that feature will dominate every distance calculation, effectively causing the algorithm to cluster almost entirely on that one feature while ignoring the others.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q7. What is the Silhouette Score, and how do you interpret its range? <span class="car">▾</span></div>
+    <div class="ans">The Silhouette Score for a point compares its average distance to points in its own cluster (cohesion) against its average distance to points in the nearest other cluster (separation), producing a value from -1 to +1. Values near +1 indicate the point is well-matched to its own cluster and far from others; values near 0 indicate it sits near a cluster boundary; negative values suggest the point may actually be in the wrong cluster.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q8. Why is K-Means sensitive to outliers, and how would you address it? <span class="car">▾</span></div>
+    <div class="ans">K-Means centroids are computed as MEANS, which are heavily influenced by extreme values — a few outliers can pull a centroid far from where the bulk of "normal" points actually sit, or cause the algorithm to isolate outliers into their own tiny clusters (exactly what happened with the raw Bank Transactions data). Common fixes include removing or capping outliers, using a robust scaler, log-transforming heavily skewed features, or switching to a more outlier-robust algorithm like K-Medoids (which uses actual data points, not means, as cluster centers).</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q9. What is the "curse of dimensionality" in the context of clustering? <span class="car">▾</span></div>
+    <div class="ans">As the number of features (dimensions) grows, distances between points tend to become increasingly similar to one another, making it harder for distance-based algorithms like K-Means to meaningfully distinguish "close" from "far" points. This is especially relevant after one-hot encoding many categorical variables, which can add many sparse, low-information dimensions — dimensionality reduction (like PCA) is often applied before clustering high-dimensional data.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q10. K-Means found clusters of very different sizes (e.g., 18,000 vs 10 vs 100). Is this a problem? <span class="car">▾</span></div>
+    <div class="ans">It's often a red flag, not a genuine finding — as demonstrated with the raw Bank Transactions data, wildly imbalanced cluster sizes frequently indicate the algorithm is being dominated by a small number of extreme outliers rather than discovering meaningful behavioral segments. Investigating feature distributions (checking for skew) and applying an appropriate transformation (like a log-transform) is the standard first response before trusting such a result.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q11. How would you validate clustering results without any ground-truth labels? <span class="car">▾</span></div>
+    <div class="ans">Use internal validation metrics like the Silhouette Score or Davies-Bouldin Index (which don't require labels), visually inspect cluster profiles for business plausibility (do the resulting personas make sense?), check cluster stability by re-running with different random seeds or bootstrap samples, and where any partial ground truth exists (even proxy labels), cross-tabulate clusters against it as a sanity check — as done with the Customer Segmentation dataset's real segment labels.</div>
+  </div>
+
+  <div class="iq" onclick="this.classList.toggle('open')">
+    <div class="qh">Q12. Can K-Means handle categorical data directly? <span class="car">▾</span></div>
+    <div class="ans">No — K-Means computes means and distances, which aren't meaningfully defined for categorical values. Categorical features must first be encoded (one-hot or ordinal) before clustering, though this can introduce its own issues in high dimensions. For datasets that are predominantly categorical, K-Modes or K-Prototypes (a hybrid for mixed numeric/categorical data) are often better-suited alternatives.</div>
+  </div>
+</div>
+</div>
+
+</div><!-- pages-wrap -->
+
+<div class="prog" id="prog"></div>
+
+<script>
+const sections=["Agenda","Intro to Unsupervised","K-Means & Distance","K-Means Algorithm","Choosing K","Intro to Hierarchical","Agglomerative & Dendrograms","Hands-On: Segmentation","Hands-On: Transactions","Pro Tips","Workshop","Quiz","Interview Qs"];
+const navTabs=document.getElementById('navTabs');
+const pages=document.querySelectorAll('.page');
+let cur=0;
+sections.forEach((n,i)=>{const t=document.createElement('div');t.className='nav-tab'+(i===0?' active':'');t.textContent=n;t.addEventListener('click',()=>go(i));navTabs.appendChild(t);});
+function go(i){pages[cur].classList.remove('active');document.querySelectorAll('.nav-tab')[cur].classList.remove('active');cur=i;pages[cur].classList.add('active');document.querySelectorAll('.nav-tab')[cur].classList.add('active');pages[cur].scrollTop=0;document.querySelectorAll('.nav-tab')[cur].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});up();}
+function up(){const p=pages[cur];const pct=p.scrollHeight<=p.clientHeight?100:(p.scrollTop/(p.scrollHeight-p.clientHeight))*100;document.getElementById('prog').style.width=pct+'%';}
+pages.forEach(p=>p.addEventListener('scroll',up));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'&&cur<sections.length-1)go(cur+1);if(e.key==='ArrowLeft'&&cur>0)go(cur-1);});
+pages[0].classList.add('active');up();
+
+const fb={
+  q1:{r:"Correct! Unsupervised learning's core goal is discovering hidden structure in data that has no labels or target variable at all.",w:"Unsupervised learning has no labels to predict — its goal is finding hidden patterns in unlabeled data, not predicting a known target or automatically beating supervised methods."},
+  q2:{r:"Correct! A centroid is recalculated every iteration as the mean position of all points currently assigned to that cluster.",w:"A centroid is the MEAN position of all points currently in that cluster — it moves every iteration as cluster membership changes, it's not a fixed point or a count."},
+  q3:{r:"Correct! A handful of extreme-balance accounts created enormous distances that dominated the clustering, dumping 99% of normal customers into one undifferentiated cluster.",w:"The real cause was extreme outliers (accounts with balances in the tens of millions) dominating the distance calculations — not a data size issue or an inherent K-Means/Elbow Method limitation."},
+  q4:{r:"Correct! A negative Silhouette Score means a point is actually closer to a neighboring cluster than its own — a likely misassignment.",w:"A Silhouette Score near -1 signals the point is closer to a NEIGHBORING cluster than its own assigned cluster — likely a misassignment, not a good match."},
+  q5:{r:"Correct! Hierarchical Clustering builds the full tree first, letting you decide the number of clusters afterward by cutting the dendrogram at any level.",w:"Hierarchical Clustering's key advantage is not needing to specify K upfront — it actually scales WORSE than K-Means and is MORE sensitive to outliers, not less."},
+  q6:{r:"Correct! Merge height directly reflects the distance/dissimilarity between the two clusters being joined — taller merges mean the joined groups were more different.",w:"Merge height represents distance/dissimilarity between the merging clusters, not point count, collection order, or an average value."},
+  q7:{r:"Correct! Both algorithms are fundamentally distance-based, so any feature with a much larger numeric range would otherwise dominate every distance calculation.",w:"The real reason is that both algorithms rely entirely on distance calculations — without scaling, large-range features would unfairly dominate, unrelated to Python syntax or K selection."}
+};
+function chk(id,el,ok){const c=document.getElementById(id);if(c.classList.contains('done'))return;c.classList.add('done');const f=document.getElementById(id+'f');if(ok){el.classList.add('ok');f.className='qf show r';f.textContent=fb[id].r;}else{el.classList.add('no');f.className='qf show w';f.textContent=fb[id].w;}}
+</script>
+</body>
+</html>
